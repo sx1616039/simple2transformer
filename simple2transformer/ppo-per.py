@@ -210,9 +210,9 @@ class PPO:
 
 
 if __name__ == '__main__':
-    prefix = "6-simple2-transformer2-256-1-099-MK-9202-"
+    prefix = "6-simple2-transformer2-256-1-099-9202-vdata"
     param = [prefix, "converged_iterations", "total_time", 'min']
-    path = "../MK/"
+    path = "../Hurink/vdata/"
     for i in range(5):
         name = prefix + str(i)
         simple_results = pd.DataFrame(columns=param, dtype=int)
