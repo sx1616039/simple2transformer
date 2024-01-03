@@ -16,7 +16,7 @@ torch.manual_seed(m_seed)
 
 
 class PPO:
-    def __init__(self, j_env, memory_size=5, batch_size=32, clip_ep=0.2):
+    def __init__(self, j_env, memory_size=5, batch_size=32, clip_ep=0.2, gamma=0.99):
         super(PPO, self).__init__()
         self.env = j_env
         self.memory_size = memory_size
@@ -26,7 +26,7 @@ class PPO:
         self.state_dim = self.env.state_num
         self.action_dim = self.env.action_num
         self.case_name = self.env.case_name
-        self.gamma = 0.99  # reward discount
+        self.gamma = gamma  # reward discount
         self.A_LR = 1e-3  # learning rate for actor
         self.C_LR = 3e-3  # learning rate for critic
         self.UPDATE_STEPS = 10  # update steps
@@ -141,7 +141,7 @@ class PPO:
         min_make_span = 100000
         converged_value = []
         t0 = time.time()
-        for i_epoch in range(8000):
+        for i_epoch in range(4000):
             if time.time() - t0 >= 3600:
                 break
             bs, ba, br, bp = [], [], [], []
@@ -197,6 +197,7 @@ class PPO:
     def test(self, data_set):
         self.load_params(data_set)
         value = []
+        t0 = time.time()
         for m in range(30):
             state = self.env.reset()
             while True:
@@ -206,13 +207,13 @@ class PPO:
                 if done:
                     break
             value.append(self.env.current_time)
-        return min(value), 0, 0, 0
+        return max(value), 30, time.time() - t0, min(value)
 
 
 if __name__ == '__main__':
-    prefix = "6-simple2-transformer2-256-1-099-9202-vdata"
+    prefix = "6-base_instance_uncertain_time-results2-"
     param = [prefix, "converged_iterations", "total_time", 'min']
-    path = "../Hurink/vdata/"
+    path = "../base_instance_uncertain_time/"
     for i in range(5):
         name = prefix + str(i)
         simple_results = pd.DataFrame(columns=param, dtype=int)
@@ -222,8 +223,8 @@ if __name__ == '__main__':
             basic_model = file_name.split('_')[0]
             env = JobEnv(title, path)
             scale = env.scale
-            model = PPO(env, memory_size=9, batch_size=2 * scale, clip_ep=0.2)
-            simple_results.loc[title] = model.train(title, is_reschedule=False)
+            model = PPO(env, memory_size=9, batch_size=2 * scale, clip_ep=0.2, gamma=0.99)
+            # simple_results.loc[title] = model.train(title, is_reschedule=False)
             # simple_results.loc[title] = model.train(basic_model, is_reschedule=True)
-            # simple_results.loc[title] = model.test(basic_model)
+            simple_results.loc[title] = model.test(basic_model)
         simple_results.to_csv(name + ".csv")

@@ -26,10 +26,8 @@ def get_optimal(job_dict, opt_sign):
 
 class JobEnv:
     def __init__(self, case_name, path, only_PDR=False):
-        self.PDRs = {"SPT": "min", "MWKR": "max", "FDD/MWKR": "min", "MOPNR": "max", "LRM": "max", "FIFO": "max",
-                     "LPT": "max", "LWKR": "min", "FDD/LWKR": "max", "LOPNR": "min", "SRM": "min", "LIFO": "min"}
-        self.pdr_label = ["SPT", "MWKR", "FDD/MWKR", "MOPNR", "LRM", "FIFO",
-                          "LPT", "LWKR", "FDD/LWKR", "LOPNR", "SRM", "LIFO"]
+        self.PDRs = {"SPT": "min", "MWKR": "max", "FDD/MWKR": "min", "MOPNR": "max", "LRM": "max", "FIFO": "max"}
+        self.pdr_label = ["SPT", "MWKR", "FDD/MWKR", "MOPNR", "LRM", "FIFO"]
         self.machine_PDR = ["min", "max", "random"]
         self.case_name = case_name
         self.job_input = {}
@@ -74,8 +72,7 @@ class JobEnv:
             self.num_of_machine_pdr = 1  # only use min operation
         else:
             self.num_of_machine_pdr = 2  # min, max and random
-        self.action_num = int(len(self.pdr_label)/2) * self.num_of_machine_pdr
-        # self.action_num = len(self.pdr_label) * self.num_of_machine_pdr
+        self.action_num = len(self.pdr_label) * self.num_of_machine_pdr
         self.max_job = self.job_num
         self.max_machine = self.machine_num
         self.current_time = 0  # current time
@@ -135,14 +132,14 @@ class JobEnv:
         return get_optimal(valid_process_time, sign)
 
     def get_feature(self, job_id, feature, sign):
-        if feature == self.pdr_label[0] or feature == self.pdr_label[6]:
+        if feature == self.pdr_label[0]:
             return self.find_process_time(job_id, self.current_op_of_job[job_id], sign)
-        elif feature == self.pdr_label[1] or feature == self.pdr_label[7]:
+        elif feature == self.pdr_label[1]:
             work_remain = 0
             for i in range(self.orders_of_job[job_id] - self.current_op_of_job[job_id]):
                 work_remain += self.find_process_time(job_id, i + self.current_op_of_job[job_id], sign)
             return work_remain
-        elif feature == self.pdr_label[2] or feature == self.pdr_label[8]:
+        elif feature == self.pdr_label[2]:
             work_remain = 0
             work_done = 0
             for i in range(self.orders_of_job[job_id] - self.current_op_of_job[job_id]):
@@ -152,14 +149,14 @@ class JobEnv:
             if work_remain == 0:
                 return 10000
             return work_done/work_remain
-        elif feature == self.pdr_label[3] or feature == self.pdr_label[9]:
+        elif feature == self.pdr_label[3]:
             return self.orders_of_job[job_id] - self.current_op_of_job[job_id]
-        elif feature == self.pdr_label[4] or feature == self.pdr_label[10]:
+        elif feature == self.pdr_label[4]:
             work_remain = 0
             for i in range(self.orders_of_job[job_id] - self.current_op_of_job[job_id] - 1):
                 work_remain += self.find_process_time(job_id, i + self.current_op_of_job[job_id]+1, sign)
             return work_remain
-        elif feature == self.pdr_label[5] or feature == self.pdr_label[11]:
+        elif feature == self.pdr_label[5]:
             return self.current_time - self.last_release_time[job_id]
         return 0
 
@@ -344,7 +341,7 @@ class JobEnv:
 
 
 if __name__ == '__main__':
-    path = "../Hurink/vdata/"
+    path = "../base_instance_uncertain_time/"
     PDR_label = ["SPT", "MWKR", "FDD/MWKR", "MOPNR", "LRM", "FIFO"]
     # PDR_label = ["SPT", "MWKR", "FDD/MWKR", "MOPNR", "LRM", "FIFO", "LPT", "LWKR", "FDD/LWKR", "LOPNR", "SRM", "LIFO"]
     results = pd.DataFrame(columns=PDR_label, dtype=int)
@@ -362,4 +359,4 @@ if __name__ == '__main__':
             # env.draw_gantt()
         results.loc[title] = case_result
         print(title + str(case_result))
-    results.to_csv("simple-vdata.csv")
+    results.to_csv("transformer-base_instance_uncertain_time.csv")
