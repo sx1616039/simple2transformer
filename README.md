@@ -1,6 +1,6 @@
 # simple2transformer
 
-This is an implementation of the paper "A transformer-based deep reinforcement learning model for flexible job-shop scheduling problems" 
+This is an implementation of the paper "A transformer-based deep reinforcement learning model for flexible job-shop scheduling problems with uncertainty" 
 
 ## Requirements
 - python >=3.6    (python=3.6 in our environment)
